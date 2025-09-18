@@ -1,8 +1,8 @@
 galaxy_info:
-  role_name: remnanode
+  role_name: node
   namespace: lagomvpn
   author: LagomVPN Team
-  description: Ansible role for deploying Remnanode
+  description: Ansible role for deploying Remnawave nodes
   company: LagomVPN
   license: MIT
   min_ansible_version: "2.9"
@@ -27,6 +27,7 @@ galaxy_info:
     - proxy
     - security
 
-dependencies:
-  - name: community.docker
-    version: ">=3.4.0" 
+dependencies: []
+
+collections:
+  - community.docker
