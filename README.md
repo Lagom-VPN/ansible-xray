@@ -11,7 +11,7 @@ This collection provides roles for managing Remnawave infrastructure components.
 
 ## Included Roles
 
-### `lagomvpn.remnawave.node`
+### `lagomvpn.remnawave.remnanode`
 
 Deploys and manages Remnawave nodes using Docker Compose. Handles SSL certificate management, node registration, and service deployment with the Remnawave management panel.
 

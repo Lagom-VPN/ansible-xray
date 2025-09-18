@@ -1,4 +1,4 @@
-# Ansible Role: node
+# Ansible Role: remnanode
 
 Deploys and manages Remnawave nodes using Docker Compose.
 
@@ -226,7 +226,7 @@ The role manages SSL certificates for secure communication between the node and 
         inbounds:
           - tag: "main-inbound"
   roles:
-    - lagomvpn.remnawave.node
+    - lagomvpn.remnawave.remnanode
 ```
 
 ## License

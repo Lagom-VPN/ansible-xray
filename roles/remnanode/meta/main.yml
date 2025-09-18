@@ -1,5 +1,5 @@
 galaxy_info:
-  role_name: node
+  role_name: remnanode
   namespace: lagomvpn
   author: LagomVPN Team
   description: Ansible role for deploying Remnawave nodes
