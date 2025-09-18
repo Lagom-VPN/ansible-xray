@@ -3,11 +3,11 @@
 [![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-lagomvpn.remnanode-blue.svg)](https://galaxy.ansible.com/lagomvpn/remnanode)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 
-An Ansible role for deploying and managing Remnanode VPN nodes using Docker Compose.
+An Ansible role for deploying and managing Remnanode using Docker Compose.
 
 ## Description
 
-This role automates the deployment of Remnanode, a VPN node service that integrates with the Remnawave management panel. It handles SSL certificate management, node registration, and service deployment using Docker containers.
+This role automates the deployment of Remnanode, a service that integrates with the Remnawave management panel. It handles SSL certificate management, node registration, and service deployment using Docker containers.
 
 ## Requirements
 
@@ -159,7 +159,7 @@ You can add custom HTTP headers for API communication:
 
 ```yaml
 remnanode_remnawave_api_headers:
-  Authorization: "Bearer {{ remnanode_remnawave_api_token }}"
+  Authorization: "Bearer {{ remnanode_remnawave_api_token }}" 
   User-Agent: "MyCustomAgent/1.0"
   X-Custom-Header: "custom-value"
 ```
@@ -181,8 +181,6 @@ You can configure files to be downloaded or copied:
 ## Dependencies
 
 - `community.docker` >= 3.4.0
-
-
 
 ## SSL Certificate Management
 

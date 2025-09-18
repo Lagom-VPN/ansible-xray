@@ -5,7 +5,7 @@ version: 1.0.0
 readme: README.md
 authors:
   - LagomVPN Team
-description: Ansible role for deploying Remnanode VPN nodes using Docker Compose
+description: Ansible role for deploying Remnanode using Docker Compose
 license:
   - MIT
 license_file: LICENSE

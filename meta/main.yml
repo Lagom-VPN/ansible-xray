@@ -2,7 +2,7 @@ galaxy_info:
   role_name: remnanode
   namespace: lagomvpn
   author: LagomVPN Team
-  description: Ansible role for deploying Remnanode VPN node
+  description: Ansible role for deploying Remnanode
   company: LagomVPN
   license: MIT
   min_ansible_version: "2.9"
