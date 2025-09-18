@@ -1,0 +1,69 @@
+---
+remnanode_project_dir: /opt/remnanode
+
+remnanode_node:
+  register: true
+  country_code: US
+  profile:
+    name: default_profile
+    inbounds:
+      - tag: default-inbound
+
+remnanode_ssl_cert_mode: smart
+
+remnanode_remnawave_panel_domain: "your-panel.domain.com"
+remnanode_remnawave_api_token: "your-api-token-here"
+remnanode_remnawave_api_headers:
+  Authorization: "Bearer {{ remnanode_remnawave_api_token }}"
+
+remnanode_env:
+  APP_PORT: 2222
+
+remnanode_compose:
+  image: "remnawave/node"
+  tag: "latest"
+  volumes:
+    - type: dir
+      host: /var/lib/remnanode
+      container: /var/lib/remnanode
+      mode: rw
+      owner: root
+      group: root
+      dir_mode: "0750"
+      create: true
+    - type: dir
+      host: /var/log/remnanode
+      container: /var/log/remnanode
+      mode: rw
+      owner: root
+      group: root
+      dir_mode: "0750"
+      create: true
+    - type: file
+      host: /var/lib/remnanode/geoip.dat
+      container: /var/lib/remnanode/geoip.dat
+      mode: ro
+      owner: root
+      group: root
+    - type: file
+      host: /var/lib/remnanode/geosite.dat
+      container: /var/lib/remnanode/geosite.dat
+      mode: ro
+      owner: root
+      group: root
+
+remnanode_dat_files:
+  - name: geoip
+    src_type: url
+    src: "https://github.com/v2fly/geoip/releases/latest/download/geoip.dat"
+    dest: /var/lib/remnanode/geoip.dat
+    mode: "0644"
+    owner: root
+    group: root
+  - name: geosite
+    src_type: url
+    src: "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
+    dest: /var/lib/remnanode/geosite.dat
+    mode: "0644"
+    owner: root
+    group: root 

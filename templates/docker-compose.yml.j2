@@ -1,0 +1,12 @@
+services:
+  remnanode:
+    container_name: remnanode
+    hostname: remnanode
+    image: "{{ remnanode_compose.image }}:{{ remnanode_compose.tag }}"
+    restart: always
+    network_mode: host
+    env_file: .env
+    volumes:
+{% for vol in remnanode_compose.volumes %}
+      - "{{ vol.host }}:{{ vol.container }}:{{ vol.mode }}"
+{% endfor %}

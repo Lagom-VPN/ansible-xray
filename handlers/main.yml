@@ -1,0 +1,7 @@
+---
+- name: Restart remnanode
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ remnanode_project_dir }}"
+    state: restarted
+    remove_orphans: true

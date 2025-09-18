@@ -1,0 +1,116 @@
+---
+- name: "Register node in Remnawave"
+  block:
+
+    - name: Get all config profiles
+      ansible.builtin.uri:
+        url: "https://{{ remnanode_remnawave_panel_domain }}/api/config-profiles"
+        method: GET
+        headers: "{{ remnanode_remnawave_api_headers_processed }}"
+        return_content: true
+        status_code: 200
+      register: remnanode_profiles_response
+
+    - name: Resolve target profile
+      ansible.builtin.set_fact:
+        remnanode_resolved_profile: >-
+          {{
+            {
+              "uuid": (
+                remnanode_profiles_response.json.response.configProfiles
+                | selectattr("name", "equalto", remnanode_node.profile.name)
+                | map(attribute="uuid")
+                | first | default(None)
+              ),
+              "inbound_uuids": (
+                remnanode_profiles_response.json.response.configProfiles
+                | selectattr("name", "equalto", remnanode_node.profile.name)
+                | map(attribute="inbounds")
+                | first | default([])
+                | selectattr("tag", "in", remnanode_node.profile.inbounds | map(attribute='tag') | list)
+                | map(attribute="uuid")
+                | list
+              )
+            }
+          }}
+
+    - name: Get all nodes
+      ansible.builtin.uri:
+        url: "https://{{ remnanode_remnawave_panel_domain }}/api/nodes"
+        method: GET
+        headers: "{{ remnanode_remnawave_api_headers_processed }}"
+        return_content: true
+        status_code: 200
+      register: remnanode_nodes_response
+
+    - name: Find existing node by inventory_hostname
+      ansible.builtin.set_fact:
+        remnanode_existing_node: >-
+          {{
+            remnanode_nodes_response.json.response
+            | selectattr('name', 'equalto', inventory_hostname)
+            | first | default(None)
+          }}
+
+    - name: Decide if update is needed
+      ansible.builtin.set_fact:
+        remnanode_update_needed: >-
+          {{
+            remnanode_existing_node is not none and (
+              remnanode_existing_node.address != ansible_host or
+              (remnanode_existing_node.port | int) != (remnanode_env.APP_PORT | int) or
+              remnanode_existing_node.countryCode != remnanode_node.country_code or
+              remnanode_existing_node.configProfile.activeConfigProfileUuid != remnanode_resolved_profile.uuid or
+              (remnanode_existing_node.configProfile.activeInbounds | map(attribute='uuid') | list | sort
+               != remnanode_resolved_profile.inbound_uuids | sort)
+            )
+          }}
+
+    - name: Create node if not exists
+      ansible.builtin.uri:
+        url: "https://{{ remnanode_remnawave_panel_domain }}/api/nodes"
+        method: POST
+        headers: "{{ remnanode_remnawave_api_headers_processed }}"
+        body_format: json
+        body: >-
+          {{
+            {
+              "name": inventory_hostname,
+              "address": ansible_host,
+              "port": remnanode_env.APP_PORT | int,
+              "countryCode": remnanode_node.country_code,
+              "configProfile": {
+                "activeConfigProfileUuid": remnanode_resolved_profile.uuid,
+                "activeInbounds": remnanode_resolved_profile.inbound_uuids
+              }
+            }
+          }}
+        status_code: 201
+      register: remnanode_create_response
+      when: remnanode_existing_node is none
+      changed_when: remnanode_create_response.status == 201
+
+    - name: Patch node if data differs
+      ansible.builtin.uri:
+        url: "https://{{ remnanode_remnawave_panel_domain }}/api/nodes"
+        method: PATCH
+        headers: "{{ remnanode_remnawave_api_headers_processed }}"
+        body_format: json
+        body: >-
+          {{
+            {
+              "uuid": remnanode_existing_node.uuid,
+              "name": inventory_hostname,
+              "address": ansible_host,
+              "port": remnanode_env.APP_PORT | int,
+              "countryCode": remnanode_node.country_code,
+              "configProfile": {
+                "activeConfigProfileUuid": remnanode_resolved_profile.uuid,
+                "activeInbounds": remnanode_resolved_profile.inbound_uuids
+              }
+            }
+          }}
+        status_code: 200
+      register: remnanode_patch_response
+      when: remnanode_update_needed
+      changed_when: remnanode_update_needed

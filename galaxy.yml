@@ -1,0 +1,31 @@
+---
+namespace: lagomvpn
+name: remnanode
+version: 1.0.0
+readme: README.md
+authors:
+  - LagomVPN Team
+description: Ansible role for deploying Remnanode VPN nodes using Docker Compose
+license:
+  - MIT
+license_file: LICENSE
+tags:
+  - vpn
+  - docker
+  - networking
+  - proxy
+  - security
+dependencies: {}
+repository: https://github.com/lagomvpn/ansible-remnanode
+documentation: https://github.com/lagomvpn/ansible-remnanode/blob/main/README.md
+homepage: https://lagomvpn.com
+issues: https://github.com/lagomvpn/ansible-remnanode/issues
+build_ignore:
+  - "*.pyc"
+  - "*.retry"
+  - ".git"
+  - ".gitignore"
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "group_vars/"
+  - "host_vars/" 
