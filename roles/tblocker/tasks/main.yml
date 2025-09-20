@@ -11,11 +11,19 @@
   tags:
     - tblocker
 
+- name: Check if xray-tools GPG key already exists
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/openrepo-xray-tools.gpg
+  register: tblocker_gpg_key_exists
+  tags:
+    - tblocker
+
 - name: Download the official xray-tools GPG key (in ASCII format)
   ansible.builtin.get_url:
     url: https://repo.remna.dev/xray-tools/public.gpg
     dest: /tmp/xray-tools-public.gpg
     mode: '0644'
+  when: not tblocker_gpg_key_exists.stat.exists
   tags:
     - tblocker
 
@@ -23,6 +31,7 @@
   ansible.builtin.command:
     cmd: gpg --dearmor -o /usr/share/keyrings/openrepo-xray-tools.gpg /tmp/xray-tools-public.gpg
     creates: /usr/share/keyrings/openrepo-xray-tools.gpg
+  when: not tblocker_gpg_key_exists.stat.exists
   tags:
     - tblocker
 
@@ -30,6 +39,7 @@
   ansible.builtin.file:
     path: /tmp/xray-tools-public.gpg
     state: absent
+  when: not tblocker_gpg_key_exists.stat.exists
   tags:
     - tblocker
 
