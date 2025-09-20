@@ -1,5 +1,4 @@
 ---
-# This task file is optimized specifically for Debian/Ubuntu systems.
 - name: Install dependencies for tblocker
   ansible.builtin.package:
     name:

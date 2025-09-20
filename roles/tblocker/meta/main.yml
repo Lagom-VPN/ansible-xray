@@ -17,10 +17,8 @@ galaxy_info:
       versions:
         - bullseye
         - bookworm
-    - name: EL
-      versions:
-        - "8"
-        - "9"
+        - trixie
+
   galaxy_tags:
     - vpn
     - xray
