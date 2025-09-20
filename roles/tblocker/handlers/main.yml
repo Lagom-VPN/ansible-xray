@@ -1,0 +1,8 @@
+---
+- name: Restart tblocker service
+  ansible.builtin.systemd:
+    name: tblocker.service
+    state: restarted
+    daemon_reload: true
+  tags:
+    - tblocker

@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  role_name: tblocker
+  namespace: lagomvpn
+  author: LagomVPN Team
+  description: Ansible role for deploying xray-torrent-blocker (tblocker)
+  company: LagomVPN
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+  galaxy_tags:
+    - vpn
+    - xray
+    - torrent
+    - blocker
+    - security
+    - firewall
+
+dependencies: []

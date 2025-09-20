@@ -1,0 +1,32 @@
+# This file is managed by Ansible. Do not edit manually.
+# Required. Path to the log file to be monitored.
+LogFile: "{{ tblocker_log_file }}"
+
+# Required. Duration of IP address blocking in minutes.
+BlockDuration: {{ tblocker_block_duration }}
+
+# Required. Tag that the application uses to determine which log entry to process.
+TorrentTag: "{{ tblocker_torrent_tag }}"
+
+# Required. Firewall to use for blocking (iptables or nft).
+BlockMode: "{{ tblocker_block_mode }}"
+
+# Optional. Path to the directory for storing the blocked IP addresses file.
+StorageDir: "{{ tblocker_storage_dir }}"
+
+# Optional. Regular expression to process username extracted from log entry.
+UsernameRegex: "{{ tblocker_username_regex }}"
+
+# Optional. Whether to send webhook notifications
+SendWebhook: {{ tblocker_send_webhook | lower }}
+
+# Optional. URL for sending webhooks
+WebhookURL: "{{ tblocker_webhook_url }}"
+
+# Optional. JSON template for webhook
+# Available variables: %s - username, %s - ip, %s - server, %s - action (block/unblock), %s - timestamp
+WebhookTemplate: '{{ tblocker_webhook_template }}'
+
+# Optional. Headers to include in the webhook request.
+WebhookHeaders:
+{{ tblocker_webhook_headers | to_nice_yaml(indent=2) }} 

@@ -1,0 +1,16 @@
+---
+# Default variables for the tblocker role
+tblocker_log_file: "/var/log/remnanode/access.log"
+tblocker_block_duration: 10
+tblocker_torrent_tag: "TORRENT"
+tblocker_block_mode: "nftables"
+# Storage directory for block data.
+tblocker_storage_dir: "/opt/tblocker"
+# Regex for username processing. The new default captures the full username.
+# IMPORTANT: For Marzban, override this variable in your playbook to "^\\d+\\.(.+)$"
+tblocker_username_regex: "email: (\\S+)"
+# Webhook settings.
+tblocker_send_webhook: true
+tblocker_webhook_url: "https://your-api-endpoint.com/webhook/ban-user"
+tblocker_webhook_template: '{"username":"%s","ip":"%s","server":"%s","action":"%s","timestamp":"%s"}'
+tblocker_webhook_headers: {}

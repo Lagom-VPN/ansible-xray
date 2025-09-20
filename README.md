@@ -15,6 +15,10 @@ This collection provides roles for managing Xray infrastructure components. It i
 
 Deploys and manages Remnawave nodes using Docker Compose. Handles SSL certificate management, node registration, and service deployment with the Remnawave management panel.
 
+### `lagomvpn.xray.tblocker`
+
+Deploys and manages xray-torrent-blocker service for monitoring Xray logs and blocking torrent traffic. Supports webhook notifications and integrates with Remnawave and other Xray-based panels.
+
 ## Installation
 
 ```bash
