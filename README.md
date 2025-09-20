@@ -1,36 +1,36 @@
-# Ansible Collection: lagomvpn.remnawave
+# Ansible Collection: lagomvpn.xray
 
-[![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-lagomvpn.remnawave-blue.svg)](https://galaxy.ansible.com/lagomvpn/remnawave)
-[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-lagomvpn.xray-blue.svg)](https://galaxy.ansible.com/lagomvpn/xray)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-An Ansible collection containing roles for managing Remnawave infrastructure.
+An Ansible collection containing roles for managing Xray infrastructure.
 
-## Description
+## Overview
 
-This collection provides roles for managing Remnawave infrastructure components. It includes tools for deploying, configuring, and managing various Remnawave services using Docker containers.
+This collection provides roles for managing Xray infrastructure components. It includes tools for deploying, configuring, and managing various Xray services using Docker containers.
 
-## Included Roles
+## Roles
 
-### `lagomvpn.remnawave.remnanode`
+### `lagomvpn.xray.remnanode`
 
 Deploys and manages Remnawave nodes using Docker Compose. Handles SSL certificate management, node registration, and service deployment with the Remnawave management panel.
 
 ## Installation
 
 ```bash
-ansible-galaxy collection install lagomvpn.remnawave
+ansible-galaxy collection install lagomvpn.xray
 ```
 
-## Dependencies
+## Requirements
 
-- `community.docker` >= 3.4.0
+- Ansible >= 2.9
+- Docker and Docker Compose on target hosts
+- Python docker library
 
 ## License
 
 MIT
 
-## Author Information
+## Support
 
-This collection was created by the LagomVPN Team.
-
-For support and contributions, visit: [GitHub Repository](https://github.com/Lagom-VPN/ansible-remnawave)
+For support and contributions, visit: [GitHub Repository](https://github.com/Lagom-VPN/ansible-xray)

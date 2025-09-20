@@ -1,5 +1,9 @@
 ---
 - name: "Register node in Remnawave"
+  delegate_to: localhost
+  run_once: false
+  tags:
+    - remnanode
   block:
 
     - name: Get all config profiles

@@ -66,4 +66,4 @@ remnanode_dat_files:
     dest: /var/lib/remnanode/geosite.dat
     mode: "0644"
     owner: root
-    group: root 
+    group: root

@@ -1,6 +1,8 @@
 ---
 - name: Validate role dependencies
   ansible.builtin.import_tasks: check_dependencies.yml
+  tags:
+    - remnanode
 
 - name: Ensure project directory exists
   become: true
@@ -8,7 +10,8 @@
     path: "{{ remnanode_project_dir }}"
     state: directory
     mode: "0755"
-  tags: [remnanode]
+  tags:
+    - remnanode
 
 - name: Ensure required host volumes exist
   become: true
@@ -21,7 +24,8 @@
   loop: "{{ remnanode_compose.volumes | selectattr('type', 'equalto', 'dir') | selectattr('create', 'defined') | selectattr('create') | list }}"
   loop_control:
     label: "{{ item.host }}"
-  tags: [remnanode]
+  tags:
+    - remnanode
 
 - name: Download .dat assets from URL
   become: true
@@ -35,7 +39,10 @@
   loop_control:
     label: "{{ item.name | default('unnamed') }}"
   when: remnanode_dat_files is defined
-  tags: [remnanode]
+  notify: Restart remnanode
+  tags:
+    - remnanode
+    - remnanode_dat_update
 
 - name: Copy .dat assets from controller
   become: true
@@ -49,18 +56,23 @@
   loop_control:
     label: "{{ item.name | default('unnamed') }}"
   when: remnanode_dat_files is defined
-  tags: [remnanode]
+  notify: Restart remnanode
+  tags:
+    - remnanode
+    - remnanode_dat_update
 
 - name: Ensure API headers are processed
   ansible.builtin.set_fact:
     remnanode_remnawave_api_headers_processed: >-
-      {{ remnanode_remnawave_api_headers | combine({ 'Content-Type': 'application/json' }) }}
+      {{ remnanode_remnawave_api_headers | combine({'Content-Type': 'application/json'}) }}
   when: remnanode_ssl_cert_mode == "smart"
-  tags: [remnanode]
+  tags:
+    - remnanode
 
 - name: Generate .env file
   ansible.builtin.import_tasks: generate_env.yml
-  tags: [remnanode]
+  tags:
+    - remnanode
 
 - name: Render docker-compose.yml
   become: true
@@ -68,18 +80,17 @@
     src: docker-compose.yml.j2
     dest: "{{ remnanode_project_dir }}/docker-compose.yml"
     mode: "0644"
-  tags: [remnanode]
-
-- name: Start Remnanode services
-  become: true
-  community.docker.docker_compose_v2:
-    project_src: "{{ remnanode_project_dir }}"
-    state: present
-    wait: true
-    wait_timeout: 10
-  tags: [remnanode]
+  notify: Start remnanode services
+  tags:
+    - remnanode
 
 - name: Register node in Remnawave
   ansible.builtin.import_tasks: register_node.yml
   when: remnanode_node.register | default(false) | bool
-  tags: [remnanode]
+  tags:
+    - remnanode
+
+- name: Ensure remnanode services are started
+  ansible.builtin.meta: flush_handlers
+  tags:
+    - remnanode

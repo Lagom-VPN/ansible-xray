@@ -2,13 +2,18 @@
 
 - name: Use manual SSL_CERT if provided
   ansible.builtin.set_fact:
-    remnanode_env_effective: "{{ remnanode_env | combine({ 'SSL_CERT': remnanode_ssl_cert }) }}"
+    remnanode_env_effective: "{{ remnanode_env | combine({'SSL_CERT': remnanode_ssl_cert}) }}"
   when: remnanode_ssl_cert_mode == "manual"
+  tags:
+    - remnanode
 
 - name: Handle smart SSL certificate mode
   when: remnanode_ssl_cert_mode == "smart"
+  tags:
+    - remnanode
   block:
     - name: Fetch SSL_CERT (pubKey) from Remnawave API
+      delegate_to: localhost
       ansible.builtin.uri:
         url: "https://{{ remnanode_remnawave_panel_domain }}/api/keygen/"
         method: GET
@@ -82,7 +87,7 @@
 
     - name: Build effective env (with idempotent SSL_CERT)
       ansible.builtin.set_fact:
-        remnanode_env_effective: "{{ remnanode_env | combine({ 'SSL_CERT': remnanode_ssl_cert_effective_b64 }) }}"
+        remnanode_env_effective: "{{ remnanode_env | combine({'SSL_CERT': remnanode_ssl_cert_effective_b64}) }}"
       no_log: true
 
 - name: Generate .env file
@@ -95,3 +100,5 @@
     mode: "0640"
   notify: Restart remnanode
   no_log: true
+  tags:
+    - remnanode

@@ -226,7 +226,7 @@ The role manages SSL certificates for secure communication between the node and 
         inbounds:
           - tag: "main-inbound"
   roles:
-    - lagomvpn.remnawave.remnanode
+          - lagomvpn.xray.remnanode
 ```
 
 ## License
@@ -235,4 +235,4 @@ MIT
 
 ## Author Information
 
-This role is part of the lagomvpn.remnawave collection created by the LagomVPN Team. 
+This role is part of the lagomvpn.xray collection created by the LagomVPN Team. 
