@@ -15,7 +15,7 @@ BlockMode: "{{ tblocker_block_mode }}"
 StorageDir: "{{ tblocker_storage_dir }}"
 
 # Optional. Regular expression to process username extracted from log entry.
-UsernameRegex: "{{ tblocker_username_regex }}"
+UsernameRegex: {{ tblocker_username_regex | to_json }}
 
 # Optional. Whether to send webhook notifications
 SendWebhook: {{ tblocker_send_webhook | lower }}
@@ -25,7 +25,7 @@ WebhookURL: "{{ tblocker_webhook_url }}"
 
 # Optional. JSON template for webhook
 # Available variables: %s - username, %s - ip, %s - server, %s - action (block/unblock), %s - timestamp
-WebhookTemplate: '{{ tblocker_webhook_template }}'
+WebhookTemplate: {{ tblocker_webhook_template | to_json }}
 
 # Optional. Headers to include in the webhook request.
 WebhookHeaders:
