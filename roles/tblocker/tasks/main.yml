@@ -69,7 +69,7 @@
 
 - name: Ensure the application directory exists
   ansible.builtin.file:
-    path: /opt/tblocker
+    path: "{{ tblocker_config_dir }}"
     state: directory
     mode: "0755"
   tags:
@@ -78,7 +78,18 @@
 - name: Deploy the configuration file from a template
   ansible.builtin.template:
     src: config.yaml.j2
-    dest: /opt/tblocker/config.yaml
+    dest: "{{ tblocker_config_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart tblocker service
+  tags:
+    - tblocker
+
+- name: Create systemd service file for tblocker
+  ansible.builtin.template:
+    src: tblocker.service.j2
+    dest: /etc/systemd/system/tblocker.service
     owner: root
     group: root
     mode: "0644"

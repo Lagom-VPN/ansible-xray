@@ -5,7 +5,13 @@ tblocker_block_duration: 5
 tblocker_torrent_tag: "TORRENT"
 tblocker_block_mode: "nft"
 # Storage directory for block data.
-tblocker_storage_dir: "/opt/tblocker"
+
+# Configuration directory and file path
+tblocker_config_dir: "/opt/tblocker"
+tblocker_storage_dir: "{{ tblocker_config_dir }}"
+tblocker_config_file: "{{ tblocker_config_dir }}/config.yaml"
+# Binary path
+tblocker_binary_path: "{{ tblocker_config_dir }}/tblocker"
 # Regex for username processing. The new default captures the full username.
 # IMPORTANT: For Marzban, override this variable in your playbook to "^\\d+\\.(.+)$"
 tblocker_username_regex: "email: (\\S+)"

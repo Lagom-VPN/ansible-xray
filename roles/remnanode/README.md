@@ -227,12 +227,4 @@ The role manages SSL certificates for secure communication between the node and 
           - tag: "main-inbound"
   roles:
           - lagomvpn.xray.remnanode
-```
-
-## License
-
-MIT
-
-## Author Information
-
-This role is part of the lagomvpn.xray collection created by the LagomVPN Team. 
+``` 

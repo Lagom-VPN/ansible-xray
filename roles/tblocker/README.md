@@ -11,7 +11,6 @@ This role automates the deployment of tblocker, a service that monitors Xray log
 - Ansible >= 2.9
 - Ubuntu/Debian system (for APT package installation)
 - Xray with proper logging configuration
-- Firewall support (iptables or nftables)
 
 ## Role Variables
 
@@ -28,90 +27,61 @@ This role automates the deployment of tblocker, a service that monitors Xray log
 | `tblocker_block_duration` | Block duration in minutes | `10` | How long IPs stay blocked |
 | `tblocker_torrent_tag` | Tag to identify torrent traffic | `"TORRENT"` | Must match Xray routing config |
 | `tblocker_block_mode` | Firewall to use | `"nft"` | `"iptables"` or `"nft"` |
-| `tblocker_storage_dir` | Directory for block data | `"/opt/tblocker"` | Persistent storage location |
+| `tblocker_config_dir` | Main directory for tblocker | `"/opt/tblocker"` | Contains binary, config, and storage |
+| `tblocker_storage_dir` | Directory for block data | `"{{ tblocker_config_dir }}"` | Defaults to same as config dir |
+| `tblocker_config_file` | Full path to config file | `"{{ tblocker_config_dir }}/config.yaml"` | Auto-generated from config dir |
+| `tblocker_binary_path` | Path to tblocker binary | `"{{ tblocker_config_dir }}/tblocker"` | Auto-generated from config dir |
 | `tblocker_username_regex` | Regex for username extraction | `"email: (\\S+)"` | For Marzban use `"^\\d+\\.(.+)$"` |
 | `tblocker_send_webhook` | Enable webhook notifications | `true` | Send notifications to external systems |
 | `tblocker_webhook_url` | Webhook endpoint URL | `"https://your-api-endpoint.com/..."` | Your webhook receiver |
 | `tblocker_webhook_template` | JSON template for webhook | `'{"username":"%s",...}'` | Customizable payload format |
 | `tblocker_webhook_headers` | Additional HTTP headers | `{}` | Authentication headers, etc. |
 
-## Example Usage
+**Note**: For most use cases, you only need to set `tblocker_config_dir`. All other paths will be automatically derived from it. Advanced users can override individual paths if needed.
 
-### Group Variables (group_vars/remnanodes.yml)
+## Configuration Examples
+
+### Basic Configuration
 
 ```yaml
-# tblocker configuration
+tblocker_config_dir: "/opt/tblocker"
 tblocker_log_file: "/var/log/remnanode/access.log"
 tblocker_block_duration: 30
-tblocker_block_mode: "iptables"
+```
+
+### Advanced Configuration with Webhooks
+
+```yaml
+tblocker_config_dir: "/opt/tblocker"
+tblocker_log_file: "/var/log/remnanode/access.log"
+tblocker_block_duration: 30
+tblocker_block_mode: "nft"
 tblocker_send_webhook: true
 tblocker_webhook_url: "https://api.example.com/ban"
 tblocker_webhook_headers:
   Authorization: "Bearer {{ webhook_token }}"
   Content-Type: "application/json"
-
-# For Marzban panels:
-tblocker_username_regex: "^\\d+\\.(.+)$"
 ```
 
-### Playbook Usage
+## Dependencies
+
+- `community.general` >= 5.0.0
+
+## Supported Platforms
+
+- Ubuntu 20.04+ (Focal, Jammy, Noble)
+- Debian 11+ (Bullseye, Bookworm)
+
+## Example Usage
 
 ```yaml
 - hosts: xray_servers
   become: true
+  vars:
+    tblocker_log_file: "/var/log/remnanode/access.log"
+    tblocker_block_duration: 15
   roles:
-    - { role: lagomvpn.xray.tblocker, tags: tblocker }
-```
-
-## Xray Configuration
-
-To use tblocker, your Xray configuration must include:
-
-### Routing Rules
-
-Add bittorrent detection to your routing section:
-
-```json
-{
-  "routing": {
-    "rules": [
-      {
-        "protocol": ["bittorrent"],
-        "outboundTag": "TORRENT",
-        "type": "field"
-      }
-    ]
-  }
-}
-```
-
-### Outbound Configuration
-
-Add a blackhole outbound for torrent traffic:
-
-```json
-{
-  "outbounds": [
-    {
-      "protocol": "blackhole",
-      "tag": "TORRENT"
-    }
-  ]
-}
-```
-
-### Logging Configuration
-
-Enable access logging:
-
-```json
-{
-  "log": {
-    "access": "/var/log/remnanode/access.log",
-    "error": "/var/log/remnanode/error.log",
-    "loglevel": "warning"
-  }
-}
+    - lagomvpn.xray.tblocker
 ```
 
 View logs:
