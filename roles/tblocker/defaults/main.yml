@@ -1,7 +1,7 @@
 ---
 # Default variables for the tblocker role
 tblocker_log_file: "/var/log/remnanode/access.log"
-tblocker_block_duration: 10
+tblocker_block_duration: 5
 tblocker_torrent_tag: "TORRENT"
 tblocker_block_mode: "nft"
 # Storage directory for block data.
