@@ -28,5 +28,9 @@ WebhookURL: "{{ tblocker_webhook_url }}"
 WebhookTemplate: {{ tblocker_webhook_template | to_json }}
 
 # Optional. Headers to include in the webhook request.
+{% if tblocker_webhook_headers %}
 WebhookHeaders:
-{{ tblocker_webhook_headers | to_nice_yaml(indent=2) }} 
+{{ tblocker_webhook_headers | to_nice_yaml(indent=2) }}
+{% else %}
+WebhookHeaders: {}
+{% endif %} 
