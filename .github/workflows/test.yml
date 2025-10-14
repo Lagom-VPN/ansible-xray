@@ -1,0 +1,41 @@
+---
+name: Test Collection
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+jobs:
+  test:
+    name: Test Collection Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core ansible-lint
+      
+      - name: Validate galaxy.yml
+        run: |
+          ansible-galaxy collection build --force
+      
+      - name: Run ansible-lint
+        run: |
+          ansible-lint roles/
+        continue-on-error: true
+      
+      - name: List build artifacts
+        run: |
+          ls -lh *.tar.gz
+

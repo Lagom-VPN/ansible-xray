@@ -31,6 +31,35 @@ ansible-galaxy collection install lagomvpn.xray
 - Docker and Docker Compose on target hosts
 - Python docker library
 
+## Development
+
+### Publishing to Ansible Galaxy
+
+This collection is automatically published to Ansible Galaxy when a new release is created on GitHub.
+
+#### Setup
+
+1. Generate an API key from [Ansible Galaxy](https://galaxy.ansible.com/me/preferences)
+2. Add the API key to GitHub repository secrets as `GALAXY_API_KEY`:
+   - Go to your repository → Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `GALAXY_API_KEY`
+   - Value: Your Ansible Galaxy API key
+
+#### Creating a Release
+
+1. Update the version in `galaxy.yml` (optional - workflow can do this automatically based on tag)
+2. Create and push a new tag:
+   ```bash
+   git tag -a v1.0.1 -m "Release version 1.0.1"
+   git push origin v1.0.1
+   ```
+3. Create a release on GitHub from the tag
+4. The workflow will automatically:
+   - Build the collection
+   - Publish it to Ansible Galaxy
+   - Upload the build artifact to the release
+
 ## License
 
 MIT

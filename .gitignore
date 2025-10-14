@@ -47,4 +47,8 @@ inventory.ini
 group_vars/
 host_vars/
 playbook.yml
-test-*.yml 
+test-*.yml
+
+# Ansible Galaxy build artifacts
+*.tar.gz
+lagomvpn-xray-*.tar.gz 
