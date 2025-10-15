@@ -59,10 +59,20 @@
 
     - name: Decode CURRENT SSL_CERT (base64→json) if exists
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_current_decoded: >-
-          {{ (remnanode_ssl_cert_current | b64decode | from_json)
-             if (remnanode_ssl_cert_current is defined and remnanode_ssl_cert_current is not none)
-             else none }}
+        remnanode_ssl_cert_current_decoded: "{{ remnanode_ssl_cert_current | b64decode | from_json }}"
+      when:
+        - remnanode_ssl_cert_current is defined
+        - remnanode_ssl_cert_current is not none
+        - remnanode_ssl_cert_current | length > 0
+      no_log: true
+    
+    - name: Set CURRENT SSL_CERT decoded to none if not exists
+      ansible.builtin.set_fact:
+        remnanode_ssl_cert_current_decoded: null
+      when: >-
+        remnanode_ssl_cert_current is not defined or
+        remnanode_ssl_cert_current is none or
+        (remnanode_ssl_cert_current | default('') | length == 0)
       no_log: true
 
     - name: Decide whether to REUSE current base64 by CA+JWT equality
