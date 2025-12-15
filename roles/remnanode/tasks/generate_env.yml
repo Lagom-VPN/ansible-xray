@@ -1,18 +1,40 @@
 ---
 
-- name: Use manual SSL_CERT if provided
+- name: Normalize environment keys
   ansible.builtin.set_fact:
-    remnanode_env_effective: "{{ remnanode_env | combine({'SSL_CERT': remnanode_ssl_cert}) }}"
-  when: remnanode_ssl_cert_mode == "manual"
+    remnanode_env_normalized: >-
+      {{
+        remnanode_env
+        | combine(
+            (remnanode_env.NODE_PORT is not defined and remnanode_env.APP_PORT is defined)
+            | ternary({'NODE_PORT': remnanode_env.APP_PORT}, {})
+          )
+        | combine(
+            (remnanode_env.SECRET_KEY is not defined and remnanode_env.SSL_CERT is defined)
+            | ternary({'SECRET_KEY': remnanode_env.SSL_CERT}, {})
+          )
+        | dict2items
+        | rejectattr('key', 'in', ['APP_PORT', 'SSL_CERT', 'APP_CERT'])
+        | items2dict
+      }}
+  no_log: true
   tags:
     - remnanode
 
-- name: Handle smart SSL certificate mode
+- name: Use manual SECRET_KEY if provided
+  ansible.builtin.set_fact:
+    remnanode_env_effective: "{{ remnanode_env_normalized | combine({'SECRET_KEY': remnanode_ssl_cert}) }}"
+  when: remnanode_ssl_cert_mode == "manual"
+  no_log: true
+  tags:
+    - remnanode
+
+- name: Handle smart secret key mode
   when: remnanode_ssl_cert_mode == "smart"
   tags:
     - remnanode
   block:
-    - name: Fetch SSL_CERT (pubKey) from Remnawave API
+    - name: Fetch SECRET_KEY (pubKey) from Remnawave API
       delegate_to: localhost
       ansible.builtin.uri:
         url: "https://{{ remnanode_remnawave_panel_domain }}/api/keygen/"
@@ -24,80 +46,86 @@
       failed_when: remnanode_keygen_response.status != 200
       no_log: true
 
-    - name: Extract new SSL_CERT (base64 blob) from API
+    - name: Extract new SECRET_KEY (base64 blob) from API
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_new: "{{ remnanode_keygen_response.json.response.pubKey | trim }}"
+        remnanode_secret_key_new: "{{ remnanode_keygen_response.json.response.pubKey | trim }}"
       no_log: true
 
-    - name: Decode NEW SSL_CERT (base64→json)
+    - name: Decode NEW SECRET_KEY (base64→json)
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_new_decoded: "{{ remnanode_ssl_cert_new | b64decode | from_json }}"
+        remnanode_secret_key_new_decoded: "{{ remnanode_secret_key_new | b64decode | from_json }}"
       no_log: true
 
-    - name: Validate NEW SSL_CERT has required keys
+    - name: Validate NEW SECRET_KEY has required keys
       ansible.builtin.assert:
         that:
-          - remnanode_ssl_cert_new_decoded.caCertPem is defined
-          - remnanode_ssl_cert_new_decoded.jwtPublicKey is defined
+          - remnanode_secret_key_new_decoded.caCertPem is defined
+          - remnanode_secret_key_new_decoded.jwtPublicKey is defined
         quiet: true
       no_log: true
 
-    - name: Read current SSL_CERT line from .env (if present)
-      ansible.builtin.command: grep '^SSL_CERT=' {{ remnanode_project_dir }}/.env
+    - name: Read current SECRET_KEY/SSL_CERT line from .env (if present)
+      ansible.builtin.command:
+        argv:
+          - grep
+          - -m1
+          - -E
+          - "^(SECRET_KEY|SSL_CERT)="
+          - "{{ remnanode_project_dir }}/.env"
       register: remnanode_env_current
       changed_when: false
       failed_when: false
 
-    - name: Extract CURRENT SSL_CERT (base64 blob) if exists
+    - name: Extract CURRENT SECRET_KEY (base64 blob) if exists
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_current: >-
+        remnanode_secret_key_current: >-
           {{
-            (remnanode_env_current.stdout | regex_replace('^SSL_CERT=', '') | regex_replace('^"(.*)"$', '\\1') | trim)
+            (remnanode_env_current.stdout | regex_replace('^(SECRET_KEY|SSL_CERT)=', '') | regex_replace('^"(.*)"$', '\\1') | trim)
             if (remnanode_env_current.stdout | default('')) != '' else None
           }}
       no_log: true
 
-    - name: Decode CURRENT SSL_CERT (base64→json) if exists
+    - name: Decode CURRENT SECRET_KEY (base64→json) if exists
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_current_decoded: "{{ remnanode_ssl_cert_current | b64decode | from_json }}"
+        remnanode_secret_key_current_decoded: "{{ remnanode_secret_key_current | b64decode | from_json }}"
       when:
-        - remnanode_ssl_cert_current is defined
-        - remnanode_ssl_cert_current is not none
-        - remnanode_ssl_cert_current | length > 0
+        - remnanode_secret_key_current is defined
+        - remnanode_secret_key_current is not none
+        - remnanode_secret_key_current | length > 0
       no_log: true
     
-    - name: Set CURRENT SSL_CERT decoded to none if not exists
+    - name: Set CURRENT SECRET_KEY decoded to none if not exists
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_current_decoded: null
+        remnanode_secret_key_current_decoded: null
       when: >-
-        remnanode_ssl_cert_current is not defined or
-        remnanode_ssl_cert_current is none or
-        (remnanode_ssl_cert_current | default('') | length == 0)
+        remnanode_secret_key_current is not defined or
+        remnanode_secret_key_current is none or
+        (remnanode_secret_key_current | default('') | length == 0)
       no_log: true
 
     - name: Decide whether to REUSE current base64 by CA+JWT equality
       ansible.builtin.set_fact:
-        remnanode_ssl_cert_effective_b64: >-
+        remnanode_secret_key_effective_b64: >-
           {{
             (
-              remnanode_ssl_cert_current
+              remnanode_secret_key_current
               if (
-                    remnanode_ssl_cert_current_decoded is mapping
-                and remnanode_ssl_cert_current_decoded.caCertPem is defined
-                and remnanode_ssl_cert_current_decoded.jwtPublicKey is defined
-                and remnanode_ssl_cert_current_decoded.caCertPem
-                      == remnanode_ssl_cert_new_decoded.caCertPem
-                and remnanode_ssl_cert_current_decoded.jwtPublicKey
-                      == remnanode_ssl_cert_new_decoded.jwtPublicKey
+                    remnanode_secret_key_current_decoded is mapping
+                and remnanode_secret_key_current_decoded.caCertPem is defined
+                and remnanode_secret_key_current_decoded.jwtPublicKey is defined
+                and remnanode_secret_key_current_decoded.caCertPem
+                      == remnanode_secret_key_new_decoded.caCertPem
+                and remnanode_secret_key_current_decoded.jwtPublicKey
+                      == remnanode_secret_key_new_decoded.jwtPublicKey
               )
-              else remnanode_ssl_cert_new
+              else remnanode_secret_key_new
             )
           }}
       no_log: true
 
-    - name: Build effective env (with idempotent SSL_CERT)
+    - name: Build effective env (with idempotent SECRET_KEY)
       ansible.builtin.set_fact:
-        remnanode_env_effective: "{{ remnanode_env | combine({'SSL_CERT': remnanode_ssl_cert_effective_b64}) }}"
+        remnanode_env_effective: "{{ remnanode_env_normalized | combine({'SECRET_KEY': remnanode_secret_key_effective_b64}) }}"
       no_log: true
 
 - name: Generate .env file

@@ -56,13 +56,17 @@
             | first | default(None)
           }}
 
+    - name: Resolve node port value
+      ansible.builtin.set_fact:
+        remnanode_node_port: "{{ remnanode_env.NODE_PORT | default(remnanode_env.APP_PORT) | int }}"
+
     - name: Decide if update is needed
       ansible.builtin.set_fact:
         remnanode_update_needed: >-
           {{
             remnanode_existing_node is not none and (
               remnanode_existing_node.address != ansible_host or
-              (remnanode_existing_node.port | int) != (remnanode_env.APP_PORT | int) or
+              (remnanode_existing_node.port | int) != remnanode_node_port or
               remnanode_existing_node.countryCode != remnanode_node.country_code or
               remnanode_existing_node.configProfile.activeConfigProfileUuid != remnanode_resolved_profile.uuid or
               (remnanode_existing_node.configProfile.activeInbounds | map(attribute='uuid') | list | sort
@@ -81,7 +85,7 @@
             {
               "name": inventory_hostname,
               "address": ansible_host,
-              "port": remnanode_env.APP_PORT | int,
+              "port": remnanode_node_port,
               "countryCode": remnanode_node.country_code,
               "configProfile": {
                 "activeConfigProfileUuid": remnanode_resolved_profile.uuid,
@@ -106,7 +110,7 @@
               "uuid": remnanode_existing_node.uuid,
               "name": inventory_hostname,
               "address": ansible_host,
-              "port": remnanode_env.APP_PORT | int,
+              "port": remnanode_node_port,
               "countryCode": remnanode_node.country_code,
               "configProfile": {
                 "activeConfigProfileUuid": remnanode_resolved_profile.uuid,

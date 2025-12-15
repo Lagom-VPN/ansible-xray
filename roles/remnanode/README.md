@@ -48,7 +48,10 @@ This role automates the deployment of Remnawave nodes, services that integrate w
 
 | Variable | Description | Default | Notes |
 |----------|-------------|---------|-------|
-| `remnanode_env.APP_PORT` | Application port inside container | `2222` | Any valid port number |
+| `remnanode_env.NODE_PORT` | Node port inside container | `2222` | Any valid port number |
+| `remnanode_env.SECRET_KEY` | Secret key passed to remnanode (replaces legacy SSL_CERT) | - | Optional; supply if your deployment requires it |
+
+Legacy `APP_PORT`/`SSL_CERT` values are normalized to `NODE_PORT`/`SECRET_KEY` when rendering the `.env` file to ease upgrades.
 
 ### Docker Configuration
 
@@ -180,21 +183,21 @@ You can configure files to be downloaded or copied:
 
 - `community.docker` >= 3.4.0
 
-## SSL Certificate Management
+## Secret Key Management (replaces legacy SSL_CERT)
 
-The role manages SSL certificates for secure communication between the node and Remnawave panel.
+The role manages the secret key (previously exposed as `SSL_CERT`) used for secure communication between the node and Remnawave panel.
 
 ### Smart Mode (Recommended)
-- **Automatic certificate retrieval**: Fetches SSL certificates directly from Remnawave API
-- **Certificate validation**: Verifies certificate integrity before use
-- **Intelligent caching**: Reuses existing certificates if they match API response (idempotent)
-- **Requirements**: Valid API token with certificate access permissions
+- **Automatic secret retrieval**: Fetches the key directly from Remnawave API
+- **Validation**: Verifies payload integrity before use
+- **Intelligent caching**: Reuses existing key if it matches API response (idempotent)
+- **Requirements**: Valid API token with certificate/key access permissions
 
 ### Manual Mode
-- **Pre-configured certificates**: Use certificates you provide manually
+- **Pre-configured secret**: Use key material you provide manually
 - **Configuration**: Set `remnanode_ssl_cert_mode: manual`
-- **Certificate source**: Provide base64-encoded certificate in `remnanode_env.SSL_CERT`
-- **Format**: SSL_CERT value is automatically quoted in the .env file to handle base64 content safely
+- **Secret source**: Provide base64-encoded value in `remnanode_env.SECRET_KEY` (or legacy `SSL_CERT`)
+- **Format**: SECRET_KEY value is automatically quoted in the .env file to handle base64 content safely
 - **Use case**: When you want full control over certificate management
 
 ## Security Considerations
