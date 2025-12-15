@@ -93,7 +93,7 @@
         - remnanode_secret_key_current is not none
         - remnanode_secret_key_current | length > 0
       no_log: true
-    
+
     - name: Set CURRENT SECRET_KEY decoded to none if not exists
       ansible.builtin.set_fact:
         remnanode_secret_key_current_decoded: null
