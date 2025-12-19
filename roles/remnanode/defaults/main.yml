@@ -17,7 +17,7 @@ remnanode_remnawave_api_headers:
   Authorization: "Bearer {{ remnanode_remnawave_api_token }}"
 
 remnanode_env:
-  APP_PORT: 2222
+  NODE_PORT: 2222
 
 remnanode_compose:
   image: "remnawave/node"
