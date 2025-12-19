@@ -1,6 +1,7 @@
 ---
 - name: "Register node in Remnawave"
   delegate_to: localhost
+  become: false
   run_once: false
   tags:
     - remnanode
