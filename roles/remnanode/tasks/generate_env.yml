@@ -35,6 +35,7 @@
     - remnanode
   block:
     - name: Fetch SECRET_KEY (pubKey) from Remnawave API
+      become: false
       delegate_to: localhost
       ansible.builtin.uri:
         url: "https://{{ remnanode_remnawave_panel_domain }}/api/keygen/"
