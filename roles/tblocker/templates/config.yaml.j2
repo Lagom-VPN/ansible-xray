@@ -33,4 +33,12 @@ WebhookHeaders:
 {{ tblocker_webhook_headers | to_nice_yaml(indent=2) }}
 {% else %}
 WebhookHeaders: {}
-{% endif %} 
+{% endif %}
+
+# Optional. List of IP addresses to bypass blocking.
+{% if tblocker_bypass_ips %}
+BypassIPS:
+{% for ip in tblocker_bypass_ips %}
+  - "{{ ip }}"
+{% endfor %}
+{% endif %}

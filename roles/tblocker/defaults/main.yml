@@ -14,3 +14,7 @@ tblocker_send_webhook: true
 tblocker_webhook_url: "https://your-api-endpoint.com/webhook/ban-user"
 tblocker_webhook_template: '{"username":"%s","ip":"%s","server":"%s","action":"%s","timestamp":"%s"}'
 tblocker_webhook_headers: {}
+
+tblocker_bypass_ips:
+  - "127.0.0.1"
+  - "::1"
